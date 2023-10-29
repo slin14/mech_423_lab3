@@ -1,4 +1,12 @@
 # mech_423_lab3
+## Message Packet
+ | MSG_START_BYTE | cmdByte| data_H_Byte | data_L_Byte | escByte | data_modified |
+ |----------------|--------|-------------|-------------|---------|---------------|
+ | 255            | 1      | 128         | 0           | 0       | 32768 -> 50%  |
+ | 255            | 1      |  64         | 0           | 0       | 32768 -> 25%  |
+ | 255            | 2      |   0         | 0           | 0       | 0     -> STOP |
+ | 255            | 2      |   0         | 1           | 0       | 1     ->  CW  |
+ | 255            | 2      |   0         | 2           | 0       | 2     -> CCW  |
 
 ## Set Up
 ### CCS Project
