@@ -9,6 +9,7 @@ Create a project for ex 2 to 6
 ```
 mkdir l3
 git clone git@github.com:slin14/mech_423_lab3.git l3github
+cd l3github
 export REPO=`pwd`
 cd l3
 export CCS=`pwd`

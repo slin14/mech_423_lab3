@@ -8,6 +8,7 @@
  * - freq reading on P2.1 (prev P1.6)
  * | MSG_START_BYTE | cmdByte| data_H_Byte | data_L_Byte | escByte | data_modified |
  * |----------------|--------|-------------|-------------|---------|---------------|
+ * | 255            | 1      |-------------|-------------|---------|---------------|
  */
 
 // PARAMETERS
@@ -42,9 +43,9 @@ static const unsigned char BUF_DQ_BYTE = 13;
 static const unsigned char BUF_EMPTY_BYTE = 0;   // buf error indicator
 static const unsigned char BUF_FULL_BYTE  = 255; // buf error indicator
 static const unsigned char MSG_START_BYTE = 255;
-static const unsigned char FREQ_CMD_BYTE = 0x01; // msg cmd
-static const unsigned char LEDS_CMD_BYTE = 0x02; // msg cmd
-static const unsigned char DUTY_CMD_BYTE = 0x03; // msg cmd
+static const unsigned char LEDS_CMD_BYTE = 0x00; // msg cmd
+static const unsigned char DC_MOTOR_BYTE = 0x01; // msg cmd
+static const unsigned char DC_MOTOR_DIR_BYTE = 0x03; // msg cmd
 
 // VARIABLES (TO BE USED)
 volatile unsigned char rxByte = 0;
@@ -106,14 +107,13 @@ int main(void)
     setup_LEDs();
     display_LEDs(LEDOUTPUT);   // initialize LEDs
 
-	// [l3 ex2]
+	// [l3 ex2] - output PWM on P2.1 with adjustable duty cycle
     setup_TB2_CONT(); // TB2.1 and TB2.2 on P2.1 and P2.2
 
-    // initialize PWM outputs to default: 15.3 Hz, 50% duty TB2.1     
+    // initialize PWM outputs to default: 15.3 Hz, 20% duty TB2.1     
 	TB2CCTL1 |= OUTMOD_7;    // OUTMOD 7 = reset/set (reset at CCRx, set at CCR0)
-    TB2CCR0 = 16384;     // counter value to set PWM [0, 65535]
-    TB2CCR1 = 0xFFFF;
-    //TB2CCR1 = myTB2CCR1;
+    TB2CCR0 = 65535;     // counter value to set PWM [0, 65535]
+    TB2CCR1 = 16384;     // duty cycle = CCR1 / CCR0
 	// (TB2.2 is set up, but not used)
     //TB2CCTL2 |= OUTMOD_7;    // OUTMOD 7 = reset/set (reset at CCRx, set at CCR0)
     //TB2CCR2 = myTB2CCR2;
@@ -149,7 +149,7 @@ int main(void)
                     byteState = 0;
                     //packetReceivedFlag = 1; // entire packet received, process packet in main
 
-                    //printBufUART(); // print to UART for debug
+                    printBufUART(); // print to UART for debug
 
                     // revert modified data using escByte
                     switch(escByte) {
@@ -170,16 +170,15 @@ int main(void)
                     // combine data_H and data_L Bytes
                     data = data_H_Byte << 8 | data_L_Byte;
 
-                    // [ex10] execute commands
+                    // [l3] execute commands
                     switch(cmdByte) {
-                        case FREQ_CMD_BYTE: // cmd 1: set Timer B CCR0 (period)
-                            TB2CCR0 = data;
+                        case LEDS_CMD_BYTE: // cmd 0: display data_L_Byte on LEDs
+							byteDisplayLED(data_L_Byte);
                             break;
-                        case LEDS_CMD_BYTE: // cmd 2: display data_L_Byte on LEDs
-                            byteDisplayLED(data_L_Byte);
-                            break;
-                        case DUTY_CMD_BYTE: // cmd 3: set Timer B CCR1 (duty cycle)
+                        case DC_MOTOR_BYTE: // cmd 1: set PWM duty cycle on P2.1
                             TB2CCR1 = data;
+                            break;
+                        case DC_MOTOR_DIR_BYTE : // cmd 2: set DC Motor direction
                             break;
                         default:
                             break;
@@ -273,7 +272,7 @@ __interrupt void UCA0RX_ISR()
 {
     rxByte = UCA0RXBUF; // get the received byte from UART RX buffer
 
-    enqueue(rxByte); // [ex10]
+    enqueue(rxByte); // [l3]
 
     //// [ex9] circular buffer
     //if (rxByte == BUF_DQ_BYTE) { // dequeue if receive a carriage return (ASCII 13)
