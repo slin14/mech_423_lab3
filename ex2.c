@@ -77,7 +77,7 @@ volatile unsigned int  byteState = 0;
 //volatile unsigned int  msg_byte_count = 0;
 volatile unsigned int  packetReceivedFlag = 0;
 
-#include "mech423.h"
+#include "mech423PCB.h"
 // my header file
 
 /////////////////////////////////////////////////
@@ -285,9 +285,9 @@ __interrupt void P4_ISR()
 
 // ISR for UART receive
 #pragma vector=USCI_A0_VECTOR
-__interrupt void UCA0RX_ISR()
+__interrupt void UCA1RX_ISR()
 {
-    rxByte = UCA0RXBUF; // get the received byte from UART RX buffer
+    rxByte = UCA1RXBUF; // get the received byte from UART RX buffer
 
     enqueue(rxByte); // [l3]
 
