@@ -24,5 +24,6 @@ done
 for i in {2..6};
 do
   cp $REPO/mech423.h $CCS/ex$i/;
+  cp $REPO/mech423PCB.h $CCS/ex$i/;
 done
 ```
