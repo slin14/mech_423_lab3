@@ -284,7 +284,7 @@ __interrupt void P4_ISR()
 }
 
 // ISR for UART receive
-#pragma vector=USCI_A0_VECTOR
+#pragma vector=USCI_A1_VECTOR
 __interrupt void UCA1RX_ISR()
 {
     rxByte = UCA1RXBUF; // get the received byte from UART RX buffer
