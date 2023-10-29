@@ -8,7 +8,11 @@
  * - freq reading on P2.1 (prev P1.6)
  * | MSG_START_BYTE | cmdByte| data_H_Byte | data_L_Byte | escByte | data_modified |
  * |----------------|--------|-------------|-------------|---------|---------------|
- * | 255            | 1      |-------------|-------------|---------|---------------|
+ * | 255            | 1      | 128         | 0           | 0       | 32768 -> 50%  |
+ * | 255            | 1      |  64         | 0           | 0       | 32768 -> 25%  |
+ * | 255            | 2      |   0         | 0           | 0       | 0     -> STOP |
+ * | 255            | 2      |   0         | 1           | 0       | 1     ->  CW  |
+ * | 255            | 2      |   0         | 2           | 0       | 2     -> CCW  |
  */
 
 // PARAMETERS
@@ -45,7 +49,7 @@ static const unsigned char BUF_FULL_BYTE  = 255; // buf error indicator
 static const unsigned char MSG_START_BYTE = 255;
 static const unsigned char LEDS_CMD_BYTE = 0x00; // msg cmd
 static const unsigned char DC_MOTOR_BYTE = 0x01; // msg cmd
-static const unsigned char DC_MOTOR_DIR_BYTE = 0x03; // msg cmd
+static const unsigned char DC_MOTOR_DIR_BYTE = 0x02; // msg cmd
 
 // VARIABLES (TO BE USED)
 volatile unsigned char rxByte = 0;
@@ -120,6 +124,9 @@ int main(void)
 
     //setup_buttons_input();
     //enable_buttons_interrupt();
+	
+	// [l3 ex2] - output DC Motor direction on P3.6 (AIN2) and P3.7 (AIN1)
+	P3DIR |= BIT6 + BIT7;
 
     /////////////////////////////////////////////////
     _EINT();         // enable global interrupt
@@ -170,15 +177,25 @@ int main(void)
                     // combine data_H and data_L Bytes
                     data = data_H_Byte << 8 | data_L_Byte;
 
+                    /////////////////////////////////
                     // [l3] execute commands
                     switch(cmdByte) {
-                        case LEDS_CMD_BYTE: // cmd 0: display data_L_Byte on LEDs
+                        case LEDS_CMD_BYTE: // [testing] cmd 0: display data_L_Byte on LEDs
 							byteDisplayLED(data_L_Byte);
                             break;
                         case DC_MOTOR_BYTE: // cmd 1: set PWM duty cycle on P2.1
                             TB2CCR1 = data;
                             break;
                         case DC_MOTOR_DIR_BYTE : // cmd 2: set DC Motor direction
+							if      (data_L_Byte == 0) P3OUT &= ~(BIT6 + BIT7); // STOP
+							else if (data_L_Byte == 1) { // CW
+								P3OUT |=  BIT6;
+								P3OUT &= ~BIT7;
+							}
+							else if (data_L_Byte == 2) { // CCW
+								P3OUT &= ~BIT6;
+								P3OUT |=  BIT7;
+							}
                             break;
                         default:
                             break;
