@@ -1,13 +1,13 @@
 # mech_423_lab3
 ## Message Packet
 ### Commands
-| cmdByte | description              | acceptable values | MCU pin(s)          |
-|---------|--------------------------|-------------------|---------------------|
-|  1      | DC Motor PWM Duty Cycle  | 0 to 65535        | P2.1                |
-|---------|--------------------------|-------------------|---------------------|
-|  2      | DC Motor Direction       | 0 -> STOP         | P3.7-> 0, P3.6-> 0  |
-|  2      | DC Motor Direction       | 1 ->  CW          | P3.7-> 1, P3.6-> 0  |
-|  2      | DC Motor Direction       | 2 -> CCW          | P3.7-> 0, P3.6-> 1  |
+| cmdByte | description              | acceptable data | MCU pin(s)          |
+|---------|--------------------------|-----------------|---------------------|
+|  1      | DC Motor PWM Duty Cycle  | 0 to 65535      | P2.1                |
+|---------|--------------------------|-----------------|---------------------|
+|  2      | DC Motor Direction       | 0 -> STOP       | P3.7-> 0, P3.6-> 0  |
+|  2      | DC Motor Direction       | 1 ->  CW        | P3.7-> 1, P3.6-> 0  |
+|  2      | DC Motor Direction       | 2 -> CCW        | P3.7-> 0, P3.6-> 1  |
 
 ### Example Messages
  | MSG_START_BYTE | cmdByte| data_H_Byte | data_L_Byte | escByte | data_modified |
