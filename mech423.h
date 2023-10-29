@@ -113,6 +113,80 @@ void txUART(unsigned char txByte)
 }
 
 
+// [ex5] setup Timer B Up Mode - counts up to "myTB1CCR0"
+// led_port    TB1.x    output port
+// 1           TB1.1    P3.4
+// 1           TB1.2    P3.5
+// 0           TB1.1    P1.6
+// 0           TB1.2    P1.7
+void setup_timerB_UP_mode(int led_port) {
+    if (led_port == TIMERB_LED_PORT) {
+        P3DIR  |=  (BIT4 + BIT5); // P3.4 and P3.5 as output
+        P3SEL0 |=  (BIT4 + BIT5); // select TB1.1 and TB1.2
+        P3SEL1 &= ~(BIT4 + BIT5); // select TB1.1 and TB1.2  // redundant
+    } else {
+        P1DIR  |=  (BIT6 + BIT7); // P1.6 and P1.7 as output
+        P1SEL0 |=  (BIT6 + BIT7); // select TB1.1 and TB1.2
+        P1SEL1 &= ~(BIT6 + BIT7); // select TB1.1 and TB1.2  // redundant
+    }
+
+    TB1CTL |= TBSSEL__ACLK + // ACLK as clock source (8 MHz)
+              MC__UP       + // Up mode
+              ID__8        ; // divide input clock by 8 -> timer clk 1 MHz
+    TB1CTL |= TBCLR;         // clr TBR, ensure proper reset of timer divider logic
+
+    //TB1CCR0 = myTB1CCR0;     // value to count up to in UP mode
+}
+
+// [ex6] setup Timer A CONTINUOUS Mode - counts up to TxR (counter length set by CNTL)
+void setup_timerA_CONT_mode() {
+	// configure P1.0 as input to timerA TA0.1
+    P1DIR &= ~BIT0;
+    P1SEL1 &= ~BIT0;
+    P1SEL0 |= BIT0;
+
+    // configure Timer A
+    TA0CTL   = TASSEL__ACLK   + // ACLK as clock source (8 MHz)
+               MC__CONTINUOUS + // Continuous mode
+               ID__8          + // divide input clock by 8 -> timer clk 1 MHz
+               TACLR          ; // Timer A counter clear, ensure proper reset of timer divider logic
+    // Note:   TAIE (overflow interrupt is NOT enabled)
+}
+
+// Timer B only: can set counter length using TBxCTL.CNTL
+// [ex5x] setup Timer A Up Mode - counts up to "myTA1CCR0"
+//             TA1.x    output port
+//             TA1.1    P1.2
+//             TA1.2    P1.3
+void setup_timerA_UP_mode() {
+    P1DIR  |=  (BIT2 + BIT3); // P1.2 and P1.3 as output
+    P1SEL0 |=  (BIT2 + BIT3); // select TA1.1 and TA1.2
+    P1SEL1 &= ~(BIT2 + BIT3); // select TA1.1 and TA1.2  // redundant
+
+    TA1CTL |= TASSEL__ACLK + // ACLK as clock source (8 MHz)
+              MC__UP       + // Up mode
+              ID__8        ; // divide input clock by 8 -> timer clk 1 MHz
+    TA1CTL |= TACLR;         // clr TAR, ensure proper reset of timer divider logic
+
+    //TA1CCR0 = myTA1CCR0;     // value to count up to in UP mode
+}
+
+// [ex6x] setup Timer B CONTINUOUS Mode - counts up to TxR (counter length set by CNTL)
+void setup_timerB_CONT_mode() {
+    // configure P1.4 as input to timerB TB0.1
+    P1DIR  &= ~BIT4;
+    P1SEL1 &= ~BIT4;
+    P1SEL0 |=  BIT4;
+
+    // configure Timer B
+    TB0CTL   = TBSSEL__ACLK   + // ACLK as clock source (8 MHz)
+               MC__CONTINUOUS + // Continuous mode
+               ID__8          + // divide input clock by 8 -> timer clk 1 MHz
+               TBCLR          ; // Timer B counter clear, ensure proper reset of timer divider logic
+    // Note:   TBIE (overflow interrupt is NOT enabled)
+}
+
+
 // Setup ADC (for accelerometer and NTC)
 void setup_ADC() {
     // Power the Accelerometer and/or NTC

@@ -19,7 +19,9 @@ do
 done
 ```
 ### Copy header to CCS Workspace
+```
 for i in {2..6};
 do
   cp $REPO/mech423.h $CCS/ex$i/;
 done
+```

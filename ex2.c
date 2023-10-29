@@ -78,59 +78,22 @@ volatile unsigned int  packetReceivedFlag = 0;
 /////////////////////////////////////////////////
 // FUNCTIONS
 
-// [ex5] setup Timer B Up Mode - counts up to "myTB2CCR0"
-// led_port    TB2.x    output port
-// 1           TB2.1    P3.4
-// 1           TB2.2    P3.5
-// 0           TB2.1    P1.6
-// 0           TB2.2    P1.7
-void setup_timerB_UP_mode(int led_port) {
-    if (led_port == TIMERB_LED_PORT) {
-        P3DIR  |=  (BIT4 + BIT5); // P3.4 and P3.5 as output // OUTDATED
-        P3SEL0 |=  (BIT4 + BIT5); // select TB2.1 and TB2.2
-        P3SEL1 &= ~(BIT4 + BIT5); // select TB2.1 and TB2.2  // redundant
-    } else {
-        P2DIR  |=  (BIT1 + BIT2); // P2.1 and P2.2 as output
-        P2SEL0 |=  (BIT1 + BIT2); // select TB2.1 and TB2.2
-        P2SEL1 &= ~(BIT1 + BIT2); // select TB2.1 and TB2.2  // redundant
-    }
+// [l3 ex2] setup TB2 CONT Mode
+// TB2.x    output port
+// TB2.1    P1.6
+// TB2.2    P1.7
+void setup_TB2_CONT() {
+    P2DIR  |=  (BIT1 + BIT2); // P2.1 and P2.2 as output
+    P2SEL0 |=  (BIT1 + BIT2); // select TB2.1 and TB2.2
+    P2SEL1 &= ~(BIT1 + BIT2); // select TB2.1 and TB2.2  // redundant
 
-    TB2CTL |= TBSSEL__ACLK + // ACLK as clock source (8 MHz)
+    TB2CTL |= TBSSEL__ACLK +   // ACLK as clock source (8 MHz)
               MC__CONTINUOUS + // Continuous mode
-              ID__8        ; // divide input clock by 8 -> timer clk 1 MHz
+              ID__8        ;   // divide input clock by 8 -> timer clk 1 MHz
     TB2CTL |= TBCLR;         // clr TBR, ensure proper reset of timer divider logic
 
     TB2CCR0 = myTB2CCR0;     // value to count up to in UP mode
 }
-
-// [ex6] setup Timer A CONTINUOUS Mode - counts up to TxR (counter length set by CNTL)
-void setup_timerA_CONT_mode() {
-    // configure P1.0 as input to timerA TA0.1
-    P1DIR &= ~BIT0;
-    P1SEL1 &= ~BIT0;
-    P1SEL0 |= BIT0;
-
-    // configure Timer A
-    TA0CTL   = TASSEL__ACLK   + // ACLK as clock source (8 MHz)
-               MC__CONTINUOUS + // Continuous mode
-               ID__8          + // divide input clock by 8 -> timer clk 1 MHz
-               TACLR          ; // Timer A counter clear, ensure proper reset of timer divider logic
-    // Note:   TAIE (overflow interrupt is NOT enabled)
-}
-
-
-// [ex7,8] Set up TA0.1 to interrupt every "TIMER_MILLISEC" (1000/TIMER_MILLISEC Hz)
-void timerA_interrupt(int millisec) {
-    // configure TA0.1
-    TA0CCTL0 |= CCIE;    // Capture/compare interrupt enable
-    TA0CCR0 = myTA0CCR0; // overflow at X ms if 1MHz in
-
-    // start Timer A
-    TA0CTL  |= TASSEL_2 + // Timer A clock source select: 2 - SMCLK
-               MC_1     + // Timer A mode control: 1 - Up Mode
-               TACLR    ; // clear TA0R
-}
-
 
 /////////////////////////////////////////////////
 int main(void)
@@ -143,14 +106,17 @@ int main(void)
     setup_LEDs();
     display_LEDs(LEDOUTPUT);   // initialize LEDs
 
-    // setup Timer B [ex5] to output PWM on P2.1 and P2.2
-    setup_timerB_UP_mode(~TIMERB_LED_PORT); // TB2.1 and TB2.2 on P2.1 and P2.2
+	// [l3 ex2]
+    setup_TB2_CONT(); // TB2.1 and TB2.2 on P2.1 and P2.2
 
-    // initialize PWM outputs to default: 500 Hz, 50% duty TB2.1, 25% duty TB2.2
-    TB2CCTL1 |= OUTMOD_7;    // OUTMOD 7 = reset/set (reset at CCRx, set at CCR0)
-    TB2CCR1 = myTB2CCR1;
-    TB2CCTL2 |= OUTMOD_7;    // OUTMOD 7 = reset/set (reset at CCRx, set at CCR0)
-    TB2CCR2 = myTB2CCR2;
+    // initialize PWM outputs to default: 15.3 Hz, 50% duty TB2.1     
+	TB2CCTL1 |= OUTMOD_7;    // OUTMOD 7 = reset/set (reset at CCRx, set at CCR0)
+    TB2CCR0 = 16384;     // counter value to set PWM [0, 65535]
+    TB2CCR1 = 0xFFFF;
+    //TB2CCR1 = myTB2CCR1;
+	// (TB2.2 is set up, but not used)
+    //TB2CCTL2 |= OUTMOD_7;    // OUTMOD 7 = reset/set (reset at CCRx, set at CCR0)
+    //TB2CCR2 = myTB2CCR2;
 
     //setup_buttons_input();
     //enable_buttons_interrupt();
