@@ -18,3 +18,8 @@ do
   ln -s $CCS/ex$i/main.c ex$i.c;
 done
 ```
+### Copy header to CCS Workspace
+for i in {2..6};
+do
+  cp $REPO/mech423.h $CCS/ex$i/;
+done
