@@ -48,8 +48,8 @@ static const unsigned char BUF_EMPTY_BYTE = 0;   // buf error indicator
 static const unsigned char BUF_FULL_BYTE  = 255; // buf error indicator
 static const unsigned char MSG_START_BYTE = 255;
 static const unsigned char LEDS_CMD_BYTE = 0x00; // msg cmd
-static const unsigned char DC_MOTOR_BYTE = 0x01; // msg cmd
-static const unsigned char DC_MOTOR_DIR_BYTE = 0x02; // msg cmd
+static const unsigned char DC_MOTOR_CW_BYTE = 0x01; // msg cmd
+static const unsigned char DC_MOTOR_CCW_BYTE = 0x02; // msg cmd
 
 // VARIABLES (TO BE USED)
 volatile unsigned char rxByte = 0;
@@ -127,6 +127,7 @@ int main(void)
 	
 	// [l3 ex2] - output DC Motor direction on P3.6 (AIN2) and P3.7 (AIN1)
 	P3DIR |= BIT6 + BIT7;
+	P3OUT &= ~(BIT6 + BIT7); // DC Motor stop
 
     /////////////////////////////////////////////////
     _EINT();         // enable global interrupt
@@ -181,21 +182,17 @@ int main(void)
                     // [l3] execute commands
                     switch(cmdByte) {
                         case LEDS_CMD_BYTE: // [testing] cmd 0: display data_L_Byte on LEDs
-							byteDisplayLED(data_L_Byte);
+							//byteDisplayLED(data_L_Byte);
                             break;
-                        case DC_MOTOR_BYTE: // cmd 1: set PWM duty cycle on P2.1
+                        case DC_MOTOR_CW_BYTE: // cmd 1: DC CW, PWM duty cycle on P2.1
                             TB2CCR1 = data;
+							P3OUT |=  BIT6;
+							P3OUT &= ~BIT7;
                             break;
-                        case DC_MOTOR_DIR_BYTE : // cmd 2: set DC Motor direction
-							if      (data_L_Byte == 0) P3OUT &= ~(BIT6 + BIT7); // STOP
-							else if (data_L_Byte == 1) { // CW
-								P3OUT |=  BIT6;
-								P3OUT &= ~BIT7;
-							}
-							else if (data_L_Byte == 2) { // CCW
-								P3OUT &= ~BIT6;
-								P3OUT |=  BIT7;
-							}
+                        case DC_MOTOR_CCW_BYTE : // cmd 2: DC CCW, PWM duty cycle on P2.1
+                            TB2CCR1 = data;
+							P3OUT &= ~BIT6;
+							P3OUT |=  BIT7;
                             break;
                         default:
                             break;
