@@ -47,7 +47,7 @@ static const unsigned char BUF_DQ_BYTE = 13;
 static const unsigned char BUF_EMPTY_BYTE = 0;   // buf error indicator
 static const unsigned char BUF_FULL_BYTE  = 255; // buf error indicator
 static const unsigned char MSG_START_BYTE = 255;
-static const unsigned char LEDS_CMD_BYTE = 0x00; // msg cmd
+static const unsigned char ESTOP_CMD_BYTE = 0x00; // msg cmd
 static const unsigned char DC_MOTOR_CW_BYTE = 0x01; // msg cmd
 static const unsigned char DC_MOTOR_CCW_BYTE = 0x02; // msg cmd
 
@@ -181,16 +181,16 @@ int main(void)
                     /////////////////////////////////
                     // [l3] execute commands
                     switch(cmdByte) {
-                        case LEDS_CMD_BYTE: // [testing] cmd 0: display data_L_Byte on LEDs
-							//byteDisplayLED(data_L_Byte);
+						case ESTOP_CMD_BYTE: // cmd 0: E-STOP
+							P3OUT &= ~(BIT6 + BIT7); // DC Motor stop
                             break;
                         case DC_MOTOR_CW_BYTE: // cmd 1: DC CW, PWM duty cycle on P2.1
-                            TB2CCR1 = data;
+                            TB2CCR1 = data; // PWM duty cycle
 							P3OUT |=  BIT6;
 							P3OUT &= ~BIT7;
                             break;
                         case DC_MOTOR_CCW_BYTE : // cmd 2: DC CCW, PWM duty cycle on P2.1
-                            TB2CCR1 = data;
+                            TB2CCR1 = data; // PWM duty cycle
 							P3OUT &= ~BIT6;
 							P3OUT |=  BIT7;
                             break;

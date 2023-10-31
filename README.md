@@ -7,12 +7,13 @@
 |  2      | DC Motor CCW Duty Cycle  | 0 to 65535      | P2.1                |
 
 ### Example Messages
-| MSG_START_BYTE | cmdByte| data_H_Byte | data_L_Byte | escByte | data_modified |
-|----------------|--------|-------------|-------------|---------|---------------|
-| 255            | 1      | 128         | 0           | 0       | 32768 -> 50%  |
-| 255            | 1      |  64         | 0           | 0       | 32768 -> 25%  |
-| 255            | 2      | 128         | 0           | 0       | 32768 -> 50%  |
-| 255            | 2      |  64         | 0           | 0       | 32768 -> 25%  |
+| desc     | BYTE| cmdByte| data_H_Byte | data_L_Byte | escByte | data_modified |
+|----------|-----|--------|-------------|-------------|---------|---------------|
+| E-STOP   | 255 | 0      | ...         | ...         | ...     | ...           |
+| DC, CW   | 255 | 1      | 128         | 0           | 0       | 32768 -> 50%  |
+| DC, CW   | 255 | 1      |  64         | 0           | 0       | 32768 -> 25%  |
+| DC, CCW  | 255 | 2      | 128         | 0           | 0       | 32768 -> 50%  |
+| DC, CCW  | 255 | 2      |  64         | 0           | 0       | 32768 -> 25%  |
 
 ## MCU IO Pin Mapping
 ### Motor Driver
@@ -30,9 +31,10 @@ UCA0RXD -> P2.1
 
 ## Documentation
 ### Ex2
- 0 -> STOP       | P3.7-> 0, P3.6-> 0 
- 1 ->  CW        | P3.7-> 1, P3.6-> 0 
- 2 -> CCW        | P3.7-> 0, P3.6-> 1 
+| cmdByte | description              | data (duty cycle) | P2.1 | P6.7 | P3.6  |
+|---------|--------------------------|-------------------|------|------|-------|
+|  1      | DC Motor CW  Duty Cycle  | 0 to 65535        | PWM  | 0    | 1     |
+|  2      | DC Motor CCW Duty Cycle  | 0 to 65535        | PWM  | 1    | 0     |
 
 ## Set Up
 ### CCS Project
