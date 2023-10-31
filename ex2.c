@@ -47,7 +47,7 @@ static const unsigned char BUF_DQ_BYTE = 13;
 static const unsigned char BUF_EMPTY_BYTE = 0;   // buf error indicator
 static const unsigned char BUF_FULL_BYTE  = 255; // buf error indicator
 static const unsigned char MSG_START_BYTE = 255;
-static const unsigned char ESTOP_CMD_BYTE = 0x00; // msg cmd
+static const unsigned char E_STOP_CMD_BYTE = 0x00; // msg cmd
 static const unsigned char DC_MOTOR_CW_BYTE = 0x01; // msg cmd
 static const unsigned char DC_MOTOR_CCW_BYTE = 0x02; // msg cmd
 
@@ -108,8 +108,8 @@ int main(void)
     setup_8MHz_clks();            // 8 MHz DCO on MCLK, ACLK, SMCLK
     setup_UART(UART_INT_EN);   // set up UART with UART RX interrupt enabled
 
-    setup_LEDs();
-    display_LEDs(LEDOUTPUT);   // initialize LEDs
+    //setup_LEDs();
+    //display_LEDs(LEDOUTPUT);   // initialize LEDs
 
 	// [l3 ex2] - output PWM on P2.1 with adjustable duty cycle
     setup_TB2_CONT(); // TB2.1 and TB2.2 on P2.1 and P2.2
@@ -126,8 +126,10 @@ int main(void)
     //enable_buttons_interrupt();
 	
 	// [l3 ex2] - output DC Motor direction on P3.6 (AIN2) and P3.7 (AIN1)
-	P3DIR |= BIT6 + BIT7;
-	P3OUT &= ~(BIT6 + BIT7); // DC Motor stop
+	P3DIR  |=   BIT6 + BIT7;
+	P3SEL0 &= ~(BIT6 + BIT7);
+	P3SEL1 &= ~(BIT6 + BIT7);
+	P3OUT  &= ~(BIT6 + BIT7); // DC Motor stop
 
     /////////////////////////////////////////////////
     _EINT();         // enable global interrupt
@@ -181,7 +183,7 @@ int main(void)
                     /////////////////////////////////
                     // [l3] execute commands
                     switch(cmdByte) {
-						case ESTOP_CMD_BYTE: // cmd 0: E-STOP
+						case E_STOP_CMD_BYTE: // cmd 0: E-STOP
 							P3OUT &= ~(BIT6 + BIT7); // DC Motor stop
                             break;
                         case DC_MOTOR_CW_BYTE: // cmd 1: DC CW, PWM duty cycle on P2.1
@@ -198,11 +200,9 @@ int main(void)
                             break;
                     } // switch (cmdByte)
 
-                    //packetReceivedFlag = 0;
                     break;
                 default:
                     if (dequeuedByte == MSG_START_BYTE) {
-                        //startByte = dequeuedByte;
                         byteState = 1;
                     }
                     break;
