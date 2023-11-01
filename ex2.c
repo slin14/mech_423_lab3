@@ -108,7 +108,7 @@ void enqueue(int val)
     }
     else {
         buf[head] = val; // enqueue
-        head = (head + 1) % BUF_SIZE; // head++;
+        head = (head + 1) % buf_size; // head++;
     }
 }
 
@@ -185,7 +185,9 @@ int main(void)
 
     while(1) {
 		//__delay_cycles(100000); txUART(99); // periodically transmit "UART_CHAR0" TEST WORKED
-		
+		for (i=0;i<20000;i++)
+          _NOP();       // nothing
+
         // loop if there are any items in buffer
         if (head != tail) { // if buffer not empty
             dequeuedByte = dequeue(); // dequeue
@@ -226,7 +228,7 @@ int main(void)
                     } // switch (escByte)
 
                     // combine data_H and data_L Bytes
-                    data = data_H_Byte << 8 | data_L_Byte;
+                    data = (data_H_Byte << 8) + data_L_Byte;
 
                     /////////////////////////////////
                     // [l3] execute commands
