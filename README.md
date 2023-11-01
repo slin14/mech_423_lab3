@@ -3,8 +3,9 @@
 ### Commands
 | cmdByte | description              | acceptable data | MCU pin(s)          |
 |---------|--------------------------|-----------------|---------------------|
-|  1      | DC Motor CW  Duty Cycle  | 0 to 65535      | P2.1                |
-|  2      | DC Motor CCW Duty Cycle  | 0 to 65535      | P2.1                |
+|  1      | DC Motor STOP            | ...             | P2.1                |
+|  2      | DC Motor CW  Duty Cycle  | 0 to 65535      | P2.1                |
+|  3      | DC Motor CCW Duty Cycle  | 0 to 65535      | P2.1                |
 
 ### Example Messages
 | desc     | BYTE| cmdByte| data_H_Byte | data_L_Byte | escByte | data_modified |

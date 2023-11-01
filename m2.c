@@ -187,8 +187,6 @@ int main(void)
   }
 }
 
-
-
 void process_message(void)
 {
 
@@ -209,20 +207,14 @@ void process_message(void)
     full_byte = (upper_byte << 8) + lower_byte; //byte is 8 bits, bit shift by 8
 
     //Commands
-    if(command == 0x01)
-    {
-        //change duty cycle
-        TB1CCR1 = full_byte; //change when clock is set
-    }
-
     if(command == 0x02)
         state_var = 0;
 
     if(command == 0x03)
         state_var = 1;
 
-    if(command == 0x04)
-            state_var = 2;
+    if(command == 0x01)
+        state_var = 2;
 
 
     //Remove packet from buffer (adjust buffer indexes)
