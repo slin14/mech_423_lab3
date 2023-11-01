@@ -241,51 +241,51 @@ void displayTempOnLEDs()
     P3OUT   = 0b10000000*(lightUpTo>=8) + 0b01000000*(lightUpTo>=7) + 0b00100000*(lightUpTo>=6) + 0b00010000*(lightUpTo>=5);
 }
 
-// circular buffer enqueue
-void enqueue(int val)
-{
-    if ((head + 1) % BUF_SIZE == tail) { // buffer FULL (head + 1 == tail)
-        txUART(BUF_FULL_BYTE); // Error: buffer full
-    }
-    else {
-        buf[head] = val; // enqueue
-        head = (head + 1) % BUF_SIZE; // head++;
-    }
-}
-
-// circular buffer dequeue (FIFO)
-char dequeue() {
-    unsigned char result = 0;
-    if (head == tail) { // buffer empty
-        txUART(BUF_EMPTY_BYTE); // Error: buffer empty
-    }
-    else {
-        result = buf[tail]; // dequeue
-        tail = (tail + 1) % BUF_SIZE; // tail++;
-    }
-    return result;
-}
-
-// circular buffer dequeue (LIFO)
-char dequeue_LIFO() {
-    unsigned char result = 0;
-    if (head == tail) { // buffer empty
-        txUART(BUF_EMPTY_BYTE); // Error: buffer empty
-    }
-    else {
-        result = buf[head]; // dequeue
-        head = (head + BUF_SIZE - 1) % BUF_SIZE; // head--;
-    }
-    return result;
-}
-
-// debugging: print circular buffer contents over UART
-void printBufUART()
-{
-    for (i = tail; i != head; i = (i + 1) % BUF_SIZE) {
-        txUART(buf[i]);
-    }
-}
+//// circular buffer enqueue
+//void enqueue(int val)
+//{
+//    if ((head + 1) % BUF_SIZE == tail) { // buffer FULL (head + 1 == tail)
+//        txUART(BUF_FULL_BYTE); // Error: buffer full
+//    }
+//    else {
+//        buf[head] = val; // enqueue
+//        head = (head + 1) % BUF_SIZE; // head++;
+//    }
+//}
+//
+//// circular buffer dequeue (FIFO)
+//char dequeue() {
+//    unsigned char result = 0;
+//    if (head == tail) { // buffer empty
+//        txUART(BUF_EMPTY_BYTE); // Error: buffer empty
+//    }
+//    else {
+//        result = buf[tail]; // dequeue
+//        tail = (tail + 1) % BUF_SIZE; // tail++;
+//    }
+//    return result;
+//}
+//
+//// circular buffer dequeue (LIFO)
+//char dequeue_LIFO() {
+//    unsigned char result = 0;
+//    if (head == tail) { // buffer empty
+//        txUART(BUF_EMPTY_BYTE); // Error: buffer empty
+//    }
+//    else {
+//        result = buf[head]; // dequeue
+//        head = (head + BUF_SIZE - 1) % BUF_SIZE; // head--;
+//    }
+//    return result;
+//}
+//
+//// debugging: print circular buffer contents over UART
+//void printBufUART()
+//{
+//    for (i = tail; i != head; i = (i + 1) % BUF_SIZE) {
+//        txUART(buf[i]);
+//    }
+//}
 
 
 #endif

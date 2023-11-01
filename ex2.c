@@ -100,6 +100,55 @@ void setup_TB2_CONT() {
     TB2CCR0 = myTB2CCR0;     // value to count up to in UP mode
 }
 
+// circular buffer enqueue
+void enqueue(int val)
+{
+    if ((head + 1) % BUF_SIZE == tail) { // buffer FULL (head + 1 == tail)
+        txUART(BUF_FULL_BYTE); // Error: buffer full
+    }
+    else {
+        buf[head] = val; // enqueue
+        head = (head + 1) % BUF_SIZE; // head++;
+    }
+}
+
+// circular buffer dequeue (FIFO)
+char dequeue() {
+    unsigned char result = 0;
+    if (head == tail) { // buffer empty
+        txUART(BUF_EMPTY_BYTE); // Error: buffer empty
+    }
+    else {
+        result = buf[tail]; // dequeue
+        tail = (tail + 1) % BUF_SIZE; // tail++;
+    }
+    return result;
+}
+
+// circular buffer dequeue (LIFO)
+char dequeue_LIFO() {
+    unsigned char result = 0;
+    if (head == tail) { // buffer empty
+        txUART(BUF_EMPTY_BYTE); // Error: buffer empty
+    }
+    else {
+        result = buf[head]; // dequeue
+        head = (head + BUF_SIZE - 1) % BUF_SIZE; // head--;
+    }
+    return result;
+}
+
+// debugging: print circular buffer contents over UART
+void printBufUART()
+{
+    for (i = tail; i != head; i = (i + 1) % BUF_SIZE) {
+        txUART(buf[i]);
+    }
+}
+
+
+
+
 /////////////////////////////////////////////////
 int main(void)
 {
@@ -135,6 +184,8 @@ int main(void)
     _EINT();         // enable global interrupt
 
     while(1) {
+		//__delay_cycles(100000); txUART(99); // periodically transmit "UART_CHAR0" TEST WORKED
+		
         // loop if there are any items in buffer
         if (head != tail) { // if buffer not empty
             dequeuedByte = dequeue(); // dequeue
@@ -157,9 +208,6 @@ int main(void)
                 case 4:
                     escByte = dequeuedByte;
                     byteState = 0;
-                    //packetReceivedFlag = 1; // entire packet received, process packet in main
-
-                    printBufUART(); // print to UART for debug
 
                     // revert modified data using escByte
                     switch(escByte) {
