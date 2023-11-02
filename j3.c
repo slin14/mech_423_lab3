@@ -62,11 +62,11 @@ volatile unsigned char esc;             // temporary storage for escape byte
 volatile unsigned char byteState = 0;   // byte state tracker
 
 /** STEPPER LOOKUP ARRAYS **/
-// To do: microstepping using the DRV8841 built in chopper (or software?)
-const unsigned char A1table[] = {1,1,0,0,0,0,0,1};
-const unsigned char A2table[] = {0,1,1,1,0,0,0,0};
-const unsigned char B1table[] = {0,0,0,1,1,1,0,0};
-const unsigned char B2table[] = {0,0,0,0,0,1,1,1};
+// CW sequence given in class
+const unsigned char A1table[] = {0,1,1,1,0,0,0,0};
+const unsigned char A2table[] = {0,0,0,0,0,1,1,1};
+const unsigned char B1table[] = {1,1,0,0,0,0,0,1};
+const unsigned char B2table[] = {0,0,0,1,1,1,0,0};
 
 volatile int stepInterval = 20000-1;
 const int timerBCCR0 = CHOP_PERIOD;             // default BCCR0 for software current chopping

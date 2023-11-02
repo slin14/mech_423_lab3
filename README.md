@@ -46,12 +46,24 @@ UCA0RXD -> P2.1
 |  6      | Stepper  CW  Duty Cycle  | 0 to 65535        | PWM  | 0    | 1     |
 |  7      | Stepepr  CCW Duty Cycle  | 0 to 65535        | PWM  | 1    | 0     |
 
-| port | PBC       | color | x | 
-|------|-----------|-------|---|
-| P1.5 | AIN1_DRV1 | BLACK | A |
-| P1.4 | AIN2_DRV1 | GREEN | C |
-| P3.5 | BIN1_DRV1 | RED   | B |
-| P3.4 | BIN2_DRV1 | BLUE  | D |
+| port | PBC       | color | stepper wire | 
+|------|-----------|-------|--------------|
+| P1.5 | AIN1_DRV1 | BLACK | A            |
+| P1.4 | AIN2_DRV1 | GREEN | C            |
+| P3.5 | BIN1_DRV1 | RED   | B            |
+| P3.4 | BIN2_DRV1 | BLUE  | D            |
+
+#### Half Stepping Table (from class)
+| step | B | D | A | C |
+|------|---|---|---|---|
+| 0    | 1 | 0 | 0 | 0 |
+| 1    | 1 | 0 | 1 | 0 |
+| 2    | 0 | 0 | 1 | 0 |
+| 3    | 0 | 1 | 1 | 0 |
+| 4    | 0 | 1 | 0 | 0 |
+| 5    | 0 | 1 | 0 | 1 |
+| 6    | 0 | 0 | 0 | 1 |
+| 7    | 1 | 0 | 0 | 1 |
 
 ## Set Up
 ### CCS Project
