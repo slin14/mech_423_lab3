@@ -40,15 +40,17 @@ UCA0RXD -> P2.1
 ### Ex3
 | cmdByte | description              | data (duty cycle) | P2.1 | P3.7 | P3.6  |
 |---------|--------------------------|-------------------|------|------|-------|
+|  3      | Stepper  STOP            |                   | PWM  | 0    | 1     |
 |  4      | Stepper  CW  Half Step   |                   | PWM  | 0    | 1     |
 |  5      | Stepper  CCW Half Step   |                   | PWM  | 0    | 1     |
 |  6      | Stepper  CW  Duty Cycle  | 0 to 65535        | PWM  | 0    | 1     |
 |  7      | Stepepr  CCW Duty Cycle  | 0 to 65535        | PWM  | 1    | 0     |
 
-P1.4 -> AIN2_DRV1
-P1.5 -> AIN1_DRV1
-P3.5 -> BIN1_DRV1
-P3.4 -> BIN2_DRV1
+| port | PBC       | color | x | 
+| P1.5 | AIN1_DRV1 | BLACK | A |
+| P1.4 | AIN2_DRV1 | GREEN | C |
+| P3.5 | BIN1_DRV1 | RED   | B |
+| P3.4 | BIN2_DRV1 | BLUE  | D |
 
 ## Set Up
 ### CCS Project
