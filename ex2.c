@@ -93,8 +93,7 @@ void setup_TB2_CONT() {
     P2SEL1 &= ~(BIT1 + BIT2); // select TB2.1 and TB2.2  // redundant
 
     TB2CTL |= TBSSEL__ACLK +   // ACLK as clock source (8 MHz)
-              MC__CONTINUOUS + // Continuous mode
-              ID__8        ;   // divide input clock by 8 -> timer clk 1 MHz
+              MC__CONTINUOUS;  // Continuous mode
     TB2CTL |= TBCLR;         // clr TBR, ensure proper reset of timer divider logic
 
     TB2CCR0 = myTB2CCR0;     // value to count up to in UP mode
@@ -185,8 +184,8 @@ int main(void)
 
     while(1) {
 		//__delay_cycles(100000); txUART(99); // periodically transmit "UART_CHAR0" TEST WORKED
-		for (i=0;i<20000;i++)
-          _NOP();       // nothing
+		//for (i=0;i<20000;i++)
+        //  _NOP();       // nothing
 
         // loop if there are any items in buffer
         if (head != tail) { // if buffer not empty
