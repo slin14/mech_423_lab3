@@ -108,7 +108,7 @@ void enqueue(int val)
     }
     else {
         buf[head] = val; // enqueue
-        head = (head + 1) % buf_size; // head++;
+        head = (head + 1) % BUF_SIZE; // head++;
     }
 }
 
