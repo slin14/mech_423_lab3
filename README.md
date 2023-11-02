@@ -37,6 +37,19 @@ UCA0RXD -> P2.1
 |  1      | DC Motor CW  Duty Cycle  | 0 to 65535        | PWM  | 0    | 1     |
 |  2      | DC Motor CCW Duty Cycle  | 0 to 65535        | PWM  | 1    | 0     |
 
+### Ex3
+| cmdByte | description              | data (duty cycle) | P2.1 | P3.7 | P3.6  |
+|---------|--------------------------|-------------------|------|------|-------|
+|  4      | Stepper  CW  Half Step   |                   | PWM  | 0    | 1     |
+|  5      | Stepper  CCW Half Step   |                   | PWM  | 0    | 1     |
+|  6      | Stepper  CW  Duty Cycle  | 0 to 65535        | PWM  | 0    | 1     |
+|  7      | Stepepr  CCW Duty Cycle  | 0 to 65535        | PWM  | 1    | 0     |
+
+P1.4 -> AIN2_DRV1
+P1.5 -> AIN1_DRV1
+P3.5 -> BIN1_DRV1
+P3.4 -> BIN2_DRV1
+
 ## Set Up
 ### CCS Project
 New -> CCS Project -> MSP430FR5739
