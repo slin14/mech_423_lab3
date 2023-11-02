@@ -48,8 +48,8 @@ UCA0RXD -> P2.1
 
 | port | PBC       | color | stepper wire | Timer |
 |------|-----------|-------|--------------|-------|
-| P1.5 | AIN1_DRV1 | BLACK | A            | TB0.1 |
-| P1.4 | AIN2_DRV1 | GREEN | C            | TB0.2 |
+| P1.5 | AIN1_DRV1 | BLACK | A            | TB0.2 |
+| P1.4 | AIN2_DRV1 | GREEN | C            | TB0.1 |
 | P3.5 | BIN1_DRV1 | RED   | B            | TB1.1 |
 | P3.4 | BIN2_DRV1 | BLUE  | D            | TB1.2 |
 
