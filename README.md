@@ -47,6 +47,7 @@ UCA0RXD -> P2.1
 |  7      | Stepepr  CCW Duty Cycle  | 0 to 65535        | PWM  | 1    | 0     |
 
 | port | PBC       | color | x | 
+|------|-----------|-------|---|
 | P1.5 | AIN1_DRV1 | BLACK | A |
 | P1.4 | AIN2_DRV1 | GREEN | C |
 | P3.5 | BIN1_DRV1 | RED   | B |
