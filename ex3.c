@@ -44,6 +44,9 @@ static const unsigned char STEPPER_STEP_CW_BYTE = 0x04; // msg cmd
 static const unsigned char STEPPER_STEP_CCW_BYTE = 0x05; // msg cmd
 static const unsigned char STEPPER_CW_BYTE = 0x06; // msg cmd
 static const unsigned char STEPPER_CCW_BYTE = 0x07; // msg cmd
+static const unsigned char STEPPER_BREAK_BYTE = 0x08; // msg cmd
+
+static const unsigned int CHOP4 = 16383; // 65535/4
 
 // Stepper CW sequence given in class
 const unsigned char A1table[] = {0,1,1,1,0,0,0,0};
@@ -51,7 +54,6 @@ const unsigned char A2table[] = {0,0,0,0,0,1,1,1};
 const unsigned char B1table[] = {1,1,0,0,0,0,0,1};
 const unsigned char B2table[] = {0,0,0,1,1,1,0,0};
 volatile unsigned int stepState = 0;            // lookup table index 
-volatile unsigned char stepperMode = 0;          // 0 = Stop; 1 = normal; 2 = Continuous+, 3 = Continuous-; 4 = Single step+; 5 = Single step-
 
 // VARIABLES (TO BE USED)
 volatile unsigned char rxByte = 0;
@@ -78,6 +80,7 @@ volatile unsigned int  data = 0;
 volatile unsigned int  byteState = 0;
 //volatile unsigned int  msg_byte_count = 0;
 volatile unsigned int  packetReceivedFlag = 0;
+volatile unsigned int  stepperMode = 0; // 0 = not continuous, 1 = CW, 2 = CCW
 
 #include "mech423PCB.h"
 // my header file
@@ -99,6 +102,46 @@ void setup_TB2_CONT() {
     TB2CTL |= TBCLR;         // clr TBR, ensure proper reset of timer divider logic
 
     TB2CCR0 = myTB2CCR0;     // value to count up to in UP mode
+}
+
+// [l3 ex3] setup TB0 CONT Mode
+// TB0.x    output port
+// TB0.1    P1.4
+// TB0.2    P1.5
+void setup_TB0_CONT() {
+    P1DIR  |=  (BIT4 + BIT5);
+    P1SEL0 |=  (BIT4 + BIT5);
+    P1SEL1 &= ~(BIT4 + BIT5);
+
+    TB0CTL |= TBSSEL__ACLK +   // ACLK as clock source (8 MHz)
+              MC__CONTINUOUS;  // Continuous mode
+    TB0CTL |= TBCLR;         // clr TBR, ensure proper reset of timer divider logic
+	TB0CCTL1 |= OUTMOD_7;    // OUTMOD 7 = reset/set (reset at CCRx, set at CCR0)
+	TB0CCTL2 |= OUTMOD_7;    // OUTMOD 7 = reset/set (reset at CCRx, set at CCR0)
+    TB0CCR0 = 65535;     // counter value to set PWM [0, 65535]
+
+    TB0CCR1 = CHOP4;
+    TB0CCR2 = CHOP4;
+}
+
+// [l3 ex2] setup TB1 CONT Mode
+// TB1.x    output port
+// TB1.1    P3.4
+// TB1.2    P3.5
+void setup_TB1_CONT() {
+    P3DIR  |=  (BIT4 + BIT5);
+    P3SEL0 |=  (BIT4 + BIT5);
+    P3SEL1 &= ~(BIT4 + BIT5);
+
+    TB1CTL |= TBSSEL__ACLK +   // ACLK as clock source (8 MHz)
+              MC__CONTINUOUS;  // Continuous mode
+    TB1CTL |= TBCLR;         // clr TBR, ensure proper reset of timer divider logic
+	TB1CCTL1 |= OUTMOD_7;    // OUTMOD 7 = reset/set (reset at CCRx, set at CCR0)
+	TB1CCTL2 |= OUTMOD_7;    // OUTMOD 7 = reset/set (reset at CCRx, set at CCR0)
+    TB1CCR0 = 65535;     // counter value to set PWM [0, 65535]
+
+    TB1CCR1 = CHOP4;
+    TB1CCR2 = CHOP4;
 }
 
 // circular buffer enqueue
@@ -151,48 +194,59 @@ void printBufUART()
 void writeStepperState(unsigned int state)
 {
     if(B1table[state]) {
-        P3SEL0 |= B1;           // Routes chopper timer to coil B1
-        //P3OUT |= B1;          // without chopping
+        P3SEL0 |= BIT5;
         }
     else {
-        P3SEL0 &= ~B1;          // Unroute chopper timer
-        P3OUT &= ~B1;           // Force output low
+        P3SEL0 &= ~BIT5;
+        P3OUT  &= ~BIT5;
         }
 
     if(B2table[state]) {
-        P3SEL0 |= B2;
-        //P3OUT |= B2;
+        P3SEL0 |= BIT4;
         }
     else {
-        P3SEL0 &= ~B2;
-        P3OUT &= ~B2;
+        P3SEL0 &= ~BIT4;
+        P3OUT  &= ~BIT4;
     }
 
     if(A1table[state]) {
-        P1SEL0 |= A1;
-        //P1OUT |= A1;
+        P1SEL0 |= BIT5;
     }
     else {
-        P1SEL0 &= ~A1;
-        P1OUT &= ~A1;
+        P1SEL0 &= ~BIT5;
+        P1OUT  &= ~BIT5;
     }
 
     if(A2table[state]) {
-        P1SEL0 |= A2;
-        //P1OUT |= A2;
+        P1SEL0 |= BIT4;
     }
     else {
-        P1SEL0 &= ~A2;
-        P1OUT &= ~A2;
+        P1SEL0 &= ~BIT4;
+        P1OUT  &= ~BIT4;
     }
 }
 
 // de-energize stopper 
 void stopStepper()
 {
-	stepperMode = 0;
-	P1OUT &= ~(BIT4 + BIT5);
-	P3OUT &= ~(BIT4 + BIT5);
+	P1SEL0 &= ~(BIT4 + BIT5);
+	P3SEL0 &= ~(BIT4 + BIT5);
+	P1SEL1 &= ~(BIT4 + BIT5);
+	P3SEL1 &= ~(BIT4 + BIT5);
+	P1OUT  &= ~(BIT4 + BIT5);
+	P3OUT  &= ~(BIT4 + BIT5);
+}
+
+// Set up TA0.1 to interrupt for stepper speed control
+void timerA_interrupt() {
+	// configure TA0.1
+    TA0CCTL0 |= CCIE;    // Capture/compare interrupt enable
+    TA0CCR0 = 65535;     // initialized to slowest speed
+
+    // start Timer A
+    TA0CTL  |= TASSEL_2 + // Timer A clock source select: 2 - SMCLK
+               MC_1     + // Timer A mode control: 1 - Up Mode
+               TACLR    ; // clear TA0R
 }
 
 
@@ -210,18 +264,24 @@ int main(void)
 	TB2CCTL1 |= OUTMOD_7;    // OUTMOD 7 = reset/set (reset at CCRx, set at CCR0)
     TB2CCR0 = 65535;     // counter value to set PWM [0, 65535]
     TB2CCR1 = 16384;     // duty cycle = CCR1 / CCR0
-	// (TB2.2 is set up, but not used)
-    //TB2CCTL2 |= OUTMOD_7;    // OUTMOD 7 = reset/set (reset at CCRx, set at CCR0)
-    //TB2CCR2 = myTB2CCR2;
 
-    //setup_buttons_input();
-    //enable_buttons_interrupt();
-	
 	// [l3 ex2] - output DC Motor direction on P3.6 (AIN2) and P3.7 (AIN1)
 	P3DIR  |=   BIT6 + BIT7;
 	P3SEL0 &= ~(BIT6 + BIT7);
 	P3SEL1 &= ~(BIT6 + BIT7);
 	P3OUT  &= ~(BIT6 + BIT7); // DC Motor stop
+
+	// [l3 3x3] - output stepper motor
+	setup_TB0_CONT(); // chop PWM to 25% when ON
+	setup_TB1_CONT(); // chop PWM to 25% when ON
+	P1DIR  |=   BIT4 + BIT5;
+	P3DIR  |=   BIT4 + BIT5;
+	P1OUT  &= ~(BIT4 + BIT5); // OFF
+	P3OUT  &= ~(BIT4 + BIT5); // OFF
+
+	// [l3 ex3] - timer interrupt for speed control
+	timerA_interrupt(); // TA0.1 interrupt
+	
 
     /////////////////////////////////////////////////
     _EINT();         // enable global interrupt
@@ -278,6 +338,7 @@ int main(void)
                     switch(cmdByte) {
 						case E_STOP_CMD_BYTE: // cmd 0: E-STOP
 							P3OUT &= ~(BIT6 + BIT7); // DC Motor stop
+							stepperMode = 0;
                             break;
                         case DC_MOTOR_CW_BYTE: // cmd 1: DC CW, PWM duty cycle on P2.1
                             TB2CCR1 = data; // PWM duty cycle
@@ -291,21 +352,28 @@ int main(void)
                             break;
 						case STEPPER_STOP_BYTE: // cmd 3:
         					stopStepper();
+							stepperMode = 0;
 							break;
 						case STEPPER_STEP_CW_BYTE: // cmd 4:
-        					stepperMode = BRAKE;
         					stepState = (stepState + 1) % 8;
         					writeStepperState(stepState);
+							stepperMode = 0;
 							break;
 						case STEPPER_STEP_CCW_BYTE: // cmd 5:
-        					stepperMode = BRAKE;
         					stepState = (stepState - 1) % 8;
         					writeStepperState(stepState);
+							stepperMode = 0;
 							break;
 						case STEPPER_CW_BYTE: // cmd 6:
+							TA0CCR0 = data; // adjust frequency
+							stepperMode = 1;
 							break;
 						case STEPPER_CCW_BYTE: // cmd 7:
+							TA0CCR0 = data; // adjust frequency
+							stepperMode = 2;
 							break;
+						case STEPPER_BREAK_BYTE: // cmd 8:
+							stepperMode = 0;
                         default:
                             break;
                     } // switch (cmdByte)
@@ -315,6 +383,7 @@ int main(void)
                     if (dequeuedByte == MSG_START_BYTE) {
                         byteState = 1;
                     }
+					stepperMode = 0;
                     break;
             } // switch (byteState)
         } // if items in buffer
@@ -326,68 +395,21 @@ int main(void)
 // ISRs
 
 
-// [ex7,8] ISR for TA0.1 CCR0 overflow every TIMER_MILLISEC = 40 (250 Hz)
+// [ex3] ISR for TA0.1 CCR0 overflow
 #pragma vector = TIMER0_A0_VECTOR
 __interrupt void timerA0()
 {
-    //// [ex7] sample accelerometer Ax, Ay, Az
-    //axByte = adcReadChannel(X_CH) >> 2;
-    //ayByte = adcReadChannel(Y_CH) >> 2;
-    //azByte = adcReadChannel(Z_CH) >> 2;
-
-    //// [ex8] sample NTC and transmit over UART
-    //temp = adcReadChannel(NTC_CH); // no right shift to incr resolution
-    //txUART(temp);
-
-    //// [ex7] transmit 255, Ax, Ay, Az over UART
-    //txUART(datapacket);
-    //txUART(axByte);
-    //txUART(ayByte);
-    //txUART(azByte);
+    if (stepperMode == 1) { 
+		stepState = (stepState + 1) % 8;
+		writeStepperState(stepState);
+	}
+	else if (stepperMode == 2) { 
+		stepState = (stepState - 1) % 8;
+		writeStepperState(stepState);
+	}
+		
 
     TA0CCTL0 &= ~CCIFG; // clear IFG
-}
-
-// ISR for capture from TA0.1
-// [ex6] overflow is NOT enabled, so this will NOT fire when TAR overflows
-#pragma vector=TIMER0_A1_VECTOR
-__interrupt void timerA(void)
-{
-    if (TA0IV & TA0IV_TACCR1){ // TA0CCR1_CCIFG is set
-        cap = TA0CCR1;
-        if(!(TA0CCTL1 & CCI)){ // current output is low (it was previously high)
-            // save the measurement (time now - starting time)
-            measurement = cap - prevCap; // time between rising and falling edge
-            // TA0CCR2 = measurement; // save to a register (trying to see it in the debugger)
-        }
-        else if (TA0CCTL1 & CCI) { // current output is high (it was previously low)
-            prevCap = cap; // reset the measurement starting time
-        }
-        TA0CCTL1 &= ~CCIFG; // clear IFG
-    }
-}
-
-#pragma vector = PORT4_VECTOR
-__interrupt void P4_ISR()
-{
-    switch (P4IV) {
-        case P4IV_P4IFG0: // P4.0 (S1)
-            //toggle_LED_zeros(LEDOUTPUT);  // toggle the zeros in LEDOUTPUT
-            //turn_ON_LED_ones(LEDOUTPUT);  // turn ON the 1's in LEDOUTPUT
-
-            //// [ex8] S1 as temperature calibration button
-            //tempThresh = adcReadChannel(NTC_CH); // no right shift to incr resolution
-
-            P4IFG &= ~BIT0; // clear IFG
-            break;
-        case P4IV_P4IFG1: // P4.1 (S2)
-            // toggle_LED_ones(LEDOUTPUT);   // toggle the ones in LEDOUTPUT
-            //turn_OFF_LED_ones(LEDOUTPUT); // turn OFF the 1's in LEDOUTPUT
-
-            P4IFG &= ~BIT1; // clear IFG
-            break;
-        default: break;
-    }
 }
 
 // ISR for UART receive
@@ -397,27 +419,5 @@ __interrupt void UCA1RX_ISR()
     rxByte = UCA1RXBUF; // get the received byte from UART RX buffer
 
     enqueue(rxByte); // [l3]
-
-    //// [ex9] circular buffer
-    //if (rxByte == BUF_DQ_BYTE) { // dequeue if receive a carriage return (ASCII 13)
-    //  dequeuedItem = dequeue();
-    //}
-    //else {
-    //    enqueue(rxByte);
-    //}
-    //printBufUART(); // [ex9] debug
-
-
-    //// [ex4] echo rxByte, rxBtye + 1
-    //// transmit back the received byte
-    //txUART(rxByte);                   // UART transmit
-    //// transmit back rxByte + 1
-    //txUART(rxByte + 1);               // UART transmit
-
-    //// [ex4] turn LED ON if rxByte == 'j', OFF if rxByte == 'k'
-    //if      (rxByte == 'j') turn_ON_LED_ones(LEDOUTPUT);  // turn ON the 1's in LEDOUTPUT
-    //else if (rxByte == 'k') turn_OFF_LED_ones(LEDOUTPUT); // turn OFF the 1's in LEDOUTPUT
-
-    // UART RX IFG is self clearing
 }
 

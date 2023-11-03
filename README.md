@@ -38,13 +38,14 @@ UCA0RXD -> P2.1
 |  2      | DC Motor CCW Duty Cycle  | 0 to 65535        | PWM  | 1    | 0     |
 
 ### Ex3
-| cmdByte | description              | data (duty cycle) | P2.1 | P3.7 | P3.6  |
-|---------|--------------------------|-------------------|------|------|-------|
-|  3      | Stepper  STOP            |                   | PWM  | 0    | 1     |
-|  4      | Stepper  CW  Half Step   |                   | PWM  | 0    | 1     |
-|  5      | Stepper  CCW Half Step   |                   | PWM  | 0    | 1     |
-|  6      | Stepper  CW  Duty Cycle  | 0 to 65535        | PWM  | 0    | 1     |
-|  7      | Stepepr  CCW Duty Cycle  | 0 to 65535        | PWM  | 1    | 0     |
+| cmdByte | description              | data (duty cycle) |
+|---------|--------------------------|-------------------|
+|  3      | Stepper  STOP            |                   |
+|  4      | Stepper  CW  Half Step   |                   |
+|  5      | Stepper  CCW Half Step   |                   |
+|  6      | Stepper  CW  Duty Cycle  | 0 to 65535        |
+|  7      | Stepper  CCW Duty Cycle  | 0 to 65535        |
+|  7      | Stepper  BREAK           |                   |
 
 | port | PBC       | color | stepper wire | Timer |
 |------|-----------|-------|--------------|-------|
