@@ -46,7 +46,7 @@ static const unsigned char STEPPER_CW_BYTE = 0x06; // msg cmd
 static const unsigned char STEPPER_CCW_BYTE = 0x07; // msg cmd
 static const unsigned char STEPPER_BREAK_BYTE = 0x08; // msg cmd
 
-static const unsigned int CHOP4 = 16383; // 65535/4
+static const unsigned int CHOP4 = 12437; // chop 12V to 3V  = 16383; // 65535/4
 
 // Stepper CW sequence given in class
 const unsigned char A1table[] = {0,1,1,1,0,0,0,0};

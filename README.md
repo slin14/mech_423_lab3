@@ -45,7 +45,7 @@ UCA0RXD -> P2.1
 |  5      | Stepper  CCW Half Step   |                   |
 |  6      | Stepper  CW  Duty Cycle  | 0 to 65535        |
 |  7      | Stepper  CCW Duty Cycle  | 0 to 65535        |
-|  7      | Stepper  BREAK           |                   |
+|  8      | Stepper  BREAK           |                   |
 
 | port | PBC       | color | stepper wire | Timer |
 |------|-----------|-------|--------------|-------|
@@ -65,6 +65,12 @@ UCA0RXD -> P2.1
 | 5    | 0 | 1 | 0 | 1 |
 | 6    | 0 | 0 | 0 | 1 |
 | 7    | 1 | 0 | 0 | 1 |
+
+#### Continuous velocity
+max speed ~8000 pulses/s -> 8kHz
+
+top speed 30 , 0
+min speed 255, 0
 
 ## Set Up
 ### CCS Project
