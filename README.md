@@ -1,11 +1,17 @@
 # mech_423_lab3
 ## Message Packet
 ### Commands
-| cmdByte | description              | acceptable data | MCU pin(s)          |
-|---------|--------------------------|-----------------|---------------------|
-|  0      | DC Motor STOP            | ...             | P2.1                |
-|  1      | DC Motor CW  Duty Cycle  | 0 to 65535      | P2.1                |
-|  2      | DC Motor CCW Duty Cycle  | 0 to 65535      | P2.1                |
+| cmdByte | description              | acceptable data |
+|---------|--------------------------|-----------------|
+|  0      | DC Motor STOP            |                 |
+|  1      | DC Motor CW  Duty Cycle  | 0 to 65535      |
+|  2      | DC Motor CCW Duty Cycle  | 0 to 65535      |
+|  3      | Stepper  STOP            |                 |
+|  4      | Stepper  CW  Half Step   |                 |
+|  5      | Stepper  CCW Half Step   |                 |
+|  6      | Stepper  CW  Duty Cycle  | 0 to 65535      |
+|  7      | Stepper  CCW Duty Cycle  | 0 to 65535      |
+|  8      | Stepper  BREAK           |                 |
 
 ### Example Messages
 | desc     | BYTE| cmdByte| data_H_Byte | data_L_Byte | escByte | data_modified |
