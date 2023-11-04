@@ -46,7 +46,7 @@ static const unsigned char STEPPER_CW_BYTE = 0x06; // msg cmd
 static const unsigned char STEPPER_CCW_BYTE = 0x07; // msg cmd
 static const unsigned char STEPPER_BREAK_BYTE = 0x08; // msg cmd
 
-static const unsigned int CHOP4 = 12437; // chop 12V to 3V  = 16383; // 65535/4
+static const unsigned int CHOP4 = 12437; // chop 12V to 3V
 
 // Stepper CW sequence given in class
 const unsigned char A1table[] = {0,1,1,1,0,0,0,0};
@@ -114,7 +114,8 @@ void setup_TB0_CONT() {
     P1SEL1 &= ~(BIT4 + BIT5);
 
     TB0CTL |= TBSSEL__ACLK +   // ACLK as clock source (8 MHz)
-              MC__CONTINUOUS;  // Continuous mode
+              MC__CONTINUOUS +  // Continuous mode
+              ID__8        ; // divide input clock by 8 -> timer clk 1 MHz
     TB0CTL |= TBCLR;         // clr TBR, ensure proper reset of timer divider logic
 	TB0CCTL1 |= OUTMOD_7;    // OUTMOD 7 = reset/set (reset at CCRx, set at CCR0)
 	TB0CCTL2 |= OUTMOD_7;    // OUTMOD 7 = reset/set (reset at CCRx, set at CCR0)
@@ -134,7 +135,8 @@ void setup_TB1_CONT() {
     P3SEL1 &= ~(BIT4 + BIT5);
 
     TB1CTL |= TBSSEL__ACLK +   // ACLK as clock source (8 MHz)
-              MC__CONTINUOUS;  // Continuous mode
+              MC__CONTINUOUS+  // Continuous mode
+              ID__8        ; // divide input clock by 8 -> timer clk 1 MHz
     TB1CTL |= TBCLR;         // clr TBR, ensure proper reset of timer divider logic
 	TB1CCTL1 |= OUTMOD_7;    // OUTMOD 7 = reset/set (reset at CCRx, set at CCR0)
 	TB1CCTL2 |= OUTMOD_7;    // OUTMOD 7 = reset/set (reset at CCRx, set at CCR0)
