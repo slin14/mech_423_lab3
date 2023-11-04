@@ -40,6 +40,7 @@ UCA0RXD -> P2.1
 ### Ex2
 | cmdByte | description              | data (duty cycle) | P2.1 | P3.7 | P3.6  |
 |---------|--------------------------|-------------------|------|------|-------|
+|  0      | DC Motor STOP            |                   | PWM  | 0    | 0     |
 |  1      | DC Motor CW  Duty Cycle  | 0 to 65535        | PWM  | 0    | 1     |
 |  2      | DC Motor CCW Duty Cycle  | 0 to 65535        | PWM  | 1    | 0     |
 
